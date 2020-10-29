@@ -5,6 +5,7 @@ const App = () => {
   const initialState = () => ({
     blackSquareIds: [],
     isRecorded: false,
+    savedIds: [],
   });
 
   const [state, setState] = useState(initialState());
@@ -25,12 +26,18 @@ const App = () => {
     setState({ blackSquareIds: [], isRecorded: true });
   };
   const finishRec = () => {
-    setState({ ...state, isRecorded: false });
+    setState({
+      savedIds: state.blackSquareIds,
+      isRecorded: false,
+      blackSquareIds: [],
+    });
   };
 
   const startPlay = () => {
-    state.blackSquareIds.map((v) => console.log(v));
+    state.savedIds.map((v) => console.log(v));
   };
+
+  console.log(state);
 
   const squares = [
     { id: 0 },
@@ -67,18 +74,9 @@ const App = () => {
 };
 
 const Row = ({ rowIndex, setColor, blackSquareIds }) => {
-  const squareIds = [
-    { id: 1 },
-    { id: 2 },
-    { id: 3 },
-    { id: 4 },
-    { id: 5 },
-    { id: 6 },
-    { id: 7 },
-    { id: 8 },
-    { id: 9 },
-    { id: 10 },
-  ];
+  const squareIds = [...Array(10).keys()].map((v) => ({
+    id: v + 1,
+  }));
 
   return (
     <tr>
