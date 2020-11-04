@@ -1,20 +1,17 @@
-table {
-  border-collapse: collapse;
-  margin: 20px 0;
-}
-
-table td {
-  padding: 20px;
-  border: solid 1px black;
-}
-
-.container {
+.root {
   margin: 30px;
 }
 .black {
   background-color: black;
 }
 
-.white {
-  background-color: white;
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(10, 50px);
+  grid-template-rows: repeat(10, 50px);
+  margin: 20px 0;
+}
+
+.grid-item {
+  border: 1px solid gray;
 }

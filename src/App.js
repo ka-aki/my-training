@@ -1,97 +1,117 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./App.css";
 
+const useInterval = (callback, delay) => {
+  const savedCallback = useRef();
+
+  // Remember the latest callback.
+  useEffect(() => {
+    savedCallback.current = callback;
+  }, [callback]);
+
+  // Set up the interval.
+  useEffect(() => {
+    function tick() {
+      savedCallback.current();
+    }
+    if (delay !== null) {
+      let id = setInterval(tick, delay);
+      return () => clearInterval(id);
+    }
+  }, [delay]);
+};
+
 const App = () => {
+  const squares = [...Array(100).keys()].map((v) => ({ id: v + 1, on: false }));
   const initialState = () => ({
-    blackSquareIds: [],
-    isRecorded: false,
-    savedIds: [],
+    squares: squares,
+    clickedSquares: [],
+    isRecording: false,
+    isPlaying: false,
+    clickedSquaresIndex: 0,
   });
 
   const [state, setState] = useState(initialState());
 
-  const setColor = (id) => {
-    if (state.isRecorded) {
-      if (state.blackSquareIds.find((v) => v === id)) {
-        const ids = state.blackSquareIds.filter((v) => v !== id);
-        setState({ ...state, blackSquareIds: ids });
+  const handleClick = (id) => {
+    if (state.isRecording) {
+      const filtered = state.clickedSquares.filter((v) => v.id === id);
+      const last = filtered[filtered.length - 1];
+
+      if (last === undefined) {
+        setState({
+          ...state,
+          squares: state.squares.map((v) => {
+            if (v.id === id) {
+              return { id: id, on: true };
+            }
+            return v;
+          }),
+          clickedSquares: state.clickedSquares.concat({ id: id, on: true }),
+        });
       } else {
-        const ids = state.blackSquareIds.concat(id);
-        setState({ ...state, blackSquareIds: ids });
+        setState({
+          ...state,
+          squares: state.squares.map((v) => {
+            if (v.id === id) {
+              return { id: id, on: !last.on };
+            }
+            return v;
+          }),
+          clickedSquares: state.clickedSquares.concat({ id: id, on: !last.on }),
+        });
       }
     }
   };
 
-  const startRec = () => {
-    setState({ blackSquareIds: [], isRecorded: true });
+  const onStart = () => {
+    setState({ ...state, isRecording: true });
   };
-  const finishRec = () => {
+
+  const onFinish = () => {
+    setState({ ...state, isRecording: false });
+  };
+
+  useInterval(() => {
+    if (state.isPlaying) {
+      setState({
+        ...state,
+        squares: state.squares.map((s) => {
+          const currentHistory =
+            state.clickedSquares[state.clickedSquaresIndex];
+          if (currentHistory != null && s.id === currentHistory.id) {
+            return state.clickedSquares[state.clickedSquaresIndex];
+          }
+          return s;
+        }),
+        clickedSquaresIndex: state.clickedSquaresIndex + 1,
+      });
+    }
+  }, 1000);
+
+  const onPlay = () => {
     setState({
-      savedIds: state.blackSquareIds,
-      isRecorded: false,
-      blackSquareIds: [],
+      ...state,
+      isPlaying: true,
+      squares: squares,
     });
   };
 
-  const startPlay = () => {
-    state.savedIds.map((v) => console.log(v));
-  };
-
-  console.log(state);
-
-  const squares = [
-    { id: 0 },
-    { id: 10 },
-    { id: 20 },
-    { id: 30 },
-    { id: 40 },
-    { id: 50 },
-    { id: 60 },
-    { id: 70 },
-    { id: 80 },
-    { id: 90 },
-  ];
-
   return (
-    <div className="container">
-      <button onClick={startRec}>記録開始</button>
-      <button onClick={finishRec}>記録終了</button>
-      <button onClick={() => startPlay()}>再生</button>
-      <table>
-        <tbody>
-          {squares.map((v) => (
-            <Row
-              key={v.id}
-              rowIndex={v.id}
-              setColor={setColor}
-              blackSquareIds={state.blackSquareIds}
-            />
-          ))}
-        </tbody>
-      </table>
+    <div className="root">
+      <button onClick={onStart}>記録開始</button>
+      <button onClick={onFinish}>記録終了</button>
+      <button onClick={onPlay}>再生</button>
+      <div className="grid-container">
+        {state.squares.map((v) => (
+          <div
+            key={v.id}
+            className={v.on ? "grid-item black" : "grid-item"}
+            onClick={() => handleClick(v.id)}
+          />
+        ))}
+      </div>
     </div>
-  );
-};
-
-const Row = ({ rowIndex, setColor, blackSquareIds }) => {
-  const squareIds = [...Array(10).keys()].map((v) => ({
-    id: v + 1,
-  }));
-
-  return (
-    <tr>
-      {squareIds.map((v) => (
-        <td
-          key={v.id}
-          onClick={() => setColor(v.id + rowIndex)}
-          className={
-            blackSquareIds.find((val) => val === v.id + rowIndex)
-              ? "black"
-              : "white"
-          }
-        />
-      ))}
-    </tr>
   );
 };
 
