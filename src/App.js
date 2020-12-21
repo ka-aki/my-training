@@ -21,19 +21,33 @@ const useInterval = (callback, delay) => {
   }, [delay]);
 };
 
+const xNum = 6;
+const yNum = 6;
+const colors = [
+  { name: "red", number: "#F00" },
+  { name: "blue", number: "#00F" },
+  { name: "green", number: "#0F0" },
+  { name: "yellow", number: "#FF0" },
+];
+
 const App = () => {
-  const squares = [...Array(100).keys()].map((v) => ({ id: v + 1, on: false }));
+  const squares = [...Array(xNum * yNum).keys()].map((v) => ({
+    id: v + 1,
+    on: false,
+    color: "",
+  }));
   const initialState = () => ({
     squares: squares,
     clickedSquares: [],
     isRecording: false,
     isPlaying: false,
     clickedSquaresIndex: 0,
+    color: "#F00",
   });
 
   const [state, setState] = useState(initialState());
 
-  const handleClick = (id) => {
+  const handleClick = (id, color) => {
     if (state.isRecording) {
       const filtered = state.clickedSquares.filter((v) => v.id === id);
       const last = filtered[filtered.length - 1];
@@ -43,25 +57,35 @@ const App = () => {
           ...state,
           squares: state.squares.map((v) => {
             if (v.id === id) {
-              return { id: id, on: true };
+              return { id: id, on: true, color };
             }
             return v;
           }),
-          clickedSquares: state.clickedSquares.concat({ id: id, on: true }),
+          clickedSquares: state.clickedSquares.concat({
+            id: id,
+            on: true,
+            color,
+          }),
         });
       } else {
         setState({
           ...state,
+          color,
           squares: state.squares.map((v) => {
             if (v.id === id) {
-              return { id: id, on: !last.on };
+              return { id: id, on: true, color };
             }
             return v;
           }),
-          clickedSquares: state.clickedSquares.concat({ id: id, on: !last.on }),
+          clickedSquares: state.clickedSquares.concat({
+            id: id,
+            on: true,
+            color,
+          }),
         });
       }
     }
+    console.log(state);
   };
 
   const onStart = () => {
@@ -89,11 +113,18 @@ const App = () => {
     }
   }, 1000);
 
-  const onPlay = () => {
+  const onPlay = (value) => {
     setState({
       ...state,
-      isPlaying: true,
+      isPlaying: value,
       squares: squares,
+    });
+  };
+
+  const selectedColor = (color) => {
+    setState({
+      ...state,
+      color,
     });
   };
 
@@ -101,15 +132,33 @@ const App = () => {
     <div className="root">
       <button onClick={onStart}>記録開始</button>
       <button onClick={onFinish}>記録終了</button>
-      <button onClick={onPlay}>再生</button>
-      <div className="grid-container">
+      <button onClick={() => onPlay(true)}>再生</button>
+      <button onClick={() => onPlay(false)}>再生停止</button>
+      <div
+        className="grid-container"
+        style={{ "--cols": xNum, "--rows": yNum }}
+      >
         {state.squares.map((v) => (
           <div
             key={v.id}
-            className={v.on ? "grid-item black" : "grid-item"}
-            onClick={() => handleClick(v.id)}
+            className={v.on ? "grid-item color" : "grid-item"}
+            style={{ "--number": v.color }}
+            onClick={() => handleClick(v.id, state.color)}
           />
         ))}
+      </div>
+      <div>
+        <div>カラーパレット</div>
+        <div className="palette-container">
+          {colors.map((color, i) => (
+            <div
+              className="item color"
+              key={i}
+              style={{ "--number": color.number }}
+              onClick={() => selectedColor(color.number)}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
