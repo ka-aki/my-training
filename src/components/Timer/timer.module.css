@@ -1,0 +1,10 @@
+.canvas {
+  position: relative;
+}
+
+.count {
+  display: flex;
+  position: absolute;
+  top: 180px;
+  left: 125px;
+}
