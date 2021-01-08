@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef } from "react";
-import "./App.css";
+import { useState, useEffect, useRef } from 'react';
+import './App.css';
+import Timer from './components/Timer/';
 
 const useInterval = (callback, delay) => {
   const savedCallback = useRef();
@@ -98,18 +99,21 @@ const App = () => {
   };
 
   return (
-    <div className="root">
-      <button onClick={onStart}>記録開始</button>
-      <button onClick={onFinish}>記録終了</button>
-      <button onClick={onPlay}>再生</button>
-      <div className="grid-container">
-        {state.squares.map((v) => (
-          <div
-            key={v.id}
-            className={v.on ? "grid-item black" : "grid-item"}
-            onClick={() => handleClick(v.id)}
-          />
-        ))}
+    <div>
+      <Timer className="root" />
+      <div>
+        <button onClick={onStart}>記録開始</button>
+        <button onClick={onFinish}>記録終了</button>
+        <button onClick={onPlay}>再生</button>
+        <div className="grid-container">
+          {state.squares.map((v) => (
+            <div
+              key={v.id}
+              className={v.on ? 'grid-item black' : 'grid-item'}
+              onClick={() => handleClick(v.id)}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

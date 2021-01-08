@@ -1,0 +1,10 @@
+.grid {
+  display: inline-grid;
+  grid-template-columns: repeat(3, 30px);
+  grid-template-rows: repeat(5, 30px);
+  margin: 0 15px;
+}
+
+.orange {
+  background-color: orange;
+}
