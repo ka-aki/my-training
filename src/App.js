@@ -100,7 +100,7 @@ const App = () => {
 
   return (
     <div>
-      <Timer className="root" />
+      <Timer className="timer" />
       <div>
         <button onClick={onStart}>記録開始</button>
         <button onClick={onFinish}>記録終了</button>
