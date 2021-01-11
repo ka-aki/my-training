@@ -3,13 +3,16 @@ import Count from '../Count/index';
 import ClockBoard from '../ClockBoard';
 import styles from './timer.module.css';
 
-function pieChart(num) {
+const BASE_TIME = 60;
+
+function pieChart(num, baseTime) {
   // circle
   const angleA = 360 * (1 / 6);
+  const unitTime = baseTime / 6;
+  const restTime = baseTime - num;
+  const v = restTime / unitTime;
   var context = document.getElementById('canvas1').getContext('2d');
   for (var i = 0; i < 6; i++) {
-    const fillEndIndex = 6 - num - 1;
-
     context.beginPath();
     context.moveTo(100, 100);
     //円
@@ -23,11 +26,9 @@ function pieChart(num) {
     );
     context.closePath();
     context.lineTo(100, 100);
-    if (fillEndIndex === -1) {
-      context.fillStyle = 'lightGreen';
-    } else {
-      context.fillStyle = i <= fillEndIndex ? 'white' : 'lightGreen';
-    }
+
+    context.fillStyle = i <= v - 1 ? 'white' : 'lightGreen';
+
     context.fill();
     context.lineWidth = 1;
     context.strokeStyle = 'black';
@@ -37,10 +38,10 @@ function pieChart(num) {
 
 const Canvas = () => {
   const canvasRef = useRef(null);
-  const [count, setcount] = useState(6);
+  const [count, setcount] = useState(BASE_TIME);
 
   useEffect(() => {
-    pieChart(count);
+    pieChart(count, BASE_TIME);
   }, [count]);
 
   useEffect(() => {
